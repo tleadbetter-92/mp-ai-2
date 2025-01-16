@@ -2,32 +2,28 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import clientPromise from '@/lib/db';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
+  if (req.method === 'POST') {
+    const { questionText, responseText } = req.body;
+    const flagged = !responseText;
 
-  const { questionText, responseText } = req.body;
-  const flagged = !responseText;
+    try {
+      const client = await clientPromise;
+      const db = client.db('mp-ai');
+      const collection = db.collection('questions');
 
-  try {
-    const client = await clientPromise;
-    const db = client.db('mp-ai');
-    const collection = db.collection('questions');
+      const result = await collection.insertOne({
+        questionText,
+        responseText: responseText || null,
+        flagged,
+        createdAt: new Date(),
+      });
 
-    const result = await collection.insertOne({
-      questionText,
-      responseText: responseText || null,
-      flagged,
-      createdAt: new Date(),
-    });
-
-    res.status(200).json({ message: 'Question saved', id: result.insertedId });
-  } catch (error) {
-    console.error('Error saving question:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-
-  if (req.method === 'GET') {
+      return res.status(200).json({ message: 'Question saved', id: result.insertedId });
+    } catch (error) {
+      console.error('Error saving question:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  } else if (req.method === 'GET') {
     const { query } = req.query;
 
     try {
@@ -46,7 +42,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     } catch (error) {
       console.error('Error retrieving question:', error);
-      res.status(500).json({ message: 'Internal server error' });
+      return res.status(500).json({ message: 'Internal server error' });
     }
+  } else {
+    return res.status(405).json({ message: 'Method not allowed' });
   }
 } 

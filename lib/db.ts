@@ -1,11 +1,18 @@
 import { MongoClient } from 'mongodb';
 
 const uri = process.env.MONGO_URI;
+
+if (!uri) {
+  throw new Error('Please add your Mongo URI to .env.local');
+}
+
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
-if (!process.env.MONGO_URI) {
-  throw new Error('Please add your Mongo URI to .env.local');
+// Extend the NodeJS.Global interface to include _mongoClientPromise
+declare global {
+  // Use 'var' to declare a global variable
+  var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
 if (process.env.NODE_ENV === 'development') {

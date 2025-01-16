@@ -1,11 +1,18 @@
 import NextAuth from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 
+const githubClientId = process.env.GITHUB_CLIENT_ID;
+const githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
+
+if (!githubClientId || !githubClientSecret) {
+  throw new Error('Missing GitHub client ID or secret in environment variables');
+}
+
 export default NextAuth({
   providers: [
     GitHubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      clientId: githubClientId,
+      clientSecret: githubClientSecret,
     }),
   ],
   callbacks: {
