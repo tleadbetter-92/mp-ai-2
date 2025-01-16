@@ -16,12 +16,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: message }],
+        messages: [
+            { role: 'system', content: 'You are an assistant for MPs. Learn from MP-provided responses to answer questions intelligently. If unsure or the question is new, suggest that the MP review it.' },
+            { role: 'user', content: message }
+          ],
       }),
     })
 
     const data = await response.json()
-    const reply = data.choices[0].message.content
+    console.log('ChatGPT API response:', data)
+    const reply = data.choices[0]?.message?.content || 'No response available'
 
     res.status(200).json({ reply })
   } catch (error) {
