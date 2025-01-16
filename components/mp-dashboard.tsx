@@ -1,8 +1,11 @@
+'use client';
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 
 type Question = {
   id: number;
@@ -27,6 +30,9 @@ const MPDashboard = () => {
     }
   ]);
 
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editedResponse, setEditedResponse] = useState<string>('');
+
   const handleApprove = (id: number) => {
     setQuestions(questions.map(q => 
       q.id === id ? { ...q, status: 'approved' } : q
@@ -37,6 +43,19 @@ const MPDashboard = () => {
     setQuestions(questions.map(q => 
       q.id === id ? { ...q, status: 'rejected' } : q
     ));
+  };
+
+  const handleEdit = (id: number, response: string) => {
+    setEditingId(id);
+    setEditedResponse(response);
+  };
+
+  const handleSave = (id: number) => {
+    setQuestions(questions.map(q => 
+      q.id === id ? { ...q, response: editedResponse } : q
+    ));
+    setEditingId(null);
+    setEditedResponse('');
   };
 
   return (
@@ -59,9 +78,26 @@ const MPDashboard = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="mb-4">{question.response}</p>
+                    {editingId === question.id ? (
+                      <Textarea
+                        value={editedResponse}
+                        onChange={(e) => setEditedResponse(e.target.value)}
+                        className="mb-4"
+                      />
+                    ) : (
+                      <p className="mb-4">{question.response}</p>
+                    )}
                     {status === 'pending' && (
                       <div className="flex gap-2">
+                        {editingId === question.id ? (
+                          <Button onClick={() => handleSave(question.id)}>
+                            Save
+                          </Button>
+                        ) : (
+                          <Button onClick={() => handleEdit(question.id, question.response)}>
+                            Edit
+                          </Button>
+                        )}
                         <Button onClick={() => handleApprove(question.id)}>
                           Approve
                         </Button>

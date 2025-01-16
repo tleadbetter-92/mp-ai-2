@@ -1,3 +1,5 @@
+'use client';
+
 import { useSession, signIn } from "next-auth/react";
 import MPDashboard from '@/components/mp-dashboard'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"

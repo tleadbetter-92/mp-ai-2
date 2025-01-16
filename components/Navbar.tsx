@@ -13,9 +13,12 @@ const Navbar = () => {
         <div>
           <Link href="/" className="text-white mr-4 hover:text-blue-100">Home</Link>
           {session ? (
-            <button onClick={() => signOut()} className="text-white hover:text-blue-100">
-              Sign Out
-            </button>
+            <>
+              <Link href="/mp/dashboard" className="text-white mr-4 hover:text-blue-100">MP Dashboard</Link>
+              <button onClick={() => signOut()} className="text-white hover:text-blue-100">
+                Sign Out
+              </button>
+            </>
           ) : (
             <Link href="/mp/login" className="text-white hover:text-blue-100">MP Login</Link>
           )}

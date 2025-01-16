@@ -9,16 +9,28 @@ export default function PublicChat() {
   const [message, setMessage] = useState('')
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant', content: string }[]>([])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!message.trim()) return
 
     setMessages([...messages, { role: 'user', content: message }])
-    // TODO: Add AI response logic
-    setMessages(prev => [...prev, { 
-      role: 'assistant', 
-      content: "Thank you for your message. The MP will review this and respond soon." 
-    }])
+
+    // Call the ChatGPT API
+    try {
+      const response = await fetch('/api/chatgpt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message }),
+      })
+
+      const data = await response.json()
+      setMessages(prev => [...prev, { role: 'assistant', content: data.reply }])
+    } catch (error) {
+      console.error('Error fetching AI response:', error)
+    }
+
     setMessage('')
   }
 
